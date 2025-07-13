@@ -2,28 +2,122 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const crypto = require('crypto');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
+
+// Encryption key (in production, use environment variable)
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'your-secret-key-32-chars-long!!';
+const ALGORITHM = 'aes-256-cbc';
+
+// Encryption utilities
+function encrypt(text) {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipher(ALGORITHM, ENCRYPTION_KEY);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return iv.toString('hex') + ':' + encrypted;
+}
+
+function decrypt(text) {
+    const textParts = text.split(':');
+    const iv = Buffer.from(textParts.shift(), 'hex');
+    const encryptedText = textParts.join(':');
+    const decipher = crypto.createDecipher(ALGORITHM, ENCRYPTION_KEY);
+    let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+}
+
+function generateAccountId(accountLine) {
+    return crypto.createHash('md5').update(accountLine).digest('hex').substring(0, 8);
+}
+
+// Sanitize order data for API responses
+function sanitizeOrder(order) {
+    const sanitized = { ...order };
+    
+    // Remove sensitive account data
+    if (sanitized.accountLine) {
+        sanitized.accountId = generateAccountId(sanitized.accountLine);
+        delete sanitized.accountLine; // Remove sensitive data
+    }
+    
+    // Ensure accountId exists
+    if (!sanitized.accountId && sanitized.accountLine) {
+        sanitized.accountId = generateAccountId(sanitized.accountLine);
+    }
+    
+    // Mask sensitive user information
+    if (sanitized.userEmail) {
+        const [local, domain] = sanitized.userEmail.split('@');
+        sanitized.userEmail = local.substring(0, 2) + '***@' + domain;
+    }
+    
+    if (sanitized.phoneLast4) {
+        sanitized.phoneLast4 = '****';
+    }
+    
+    if (sanitized.gameUsername) {
+        sanitized.gameUsername = sanitized.gameUsername.substring(0, 2) + '***';
+    }
+    
+    // Remove balance information from order responses
+    delete sanitized.balance;
+    
+    return sanitized;
+}
+
+// Sanitize user data for API responses
+function sanitizeUser(user) {
+    const sanitized = { ...user };
+    
+    // Remove password from responses
+    delete sanitized.password;
+    
+    // Mask email for non-admin users
+    if (sanitized.email && sanitized.role !== 'admin') {
+        const [local, domain] = sanitized.email.split('@');
+        sanitized.email = local.substring(0, 2) + '***@' + domain;
+    }
+    
+    // Mask balance for non-admin users
+    if (sanitized.balance && sanitized.role !== 'admin') {
+        sanitized.balance = Math.floor(sanitized.balance / 1000) * 1000; // Round to nearest 1000
+    }
+    
+    return sanitized;
+}
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));
 
+// Middleware to check admin role
+function requireAdmin(req, res, next) {
+    const username = req.body.username || req.query.username;
+    if (!username) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    fs.readFile(USERS_FILE, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Cannot read users file' });
+        const users = JSON.parse(data || '[]');
+        const user = users.find(u => u.username === username);
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        next();
+    });
+}
+
 // File paths
 const USERS_FILE = 'users.json';
 const ORDERS_FILE = 'orders.json';
 const ACCOUNTS_FILE = 'ACC.txt';
 const HIDDEN_ACCOUNTS_FILE = 'hidden_accounts.txt';
-
-// Đọc danh sách user
-app.get('/api/users', (req, res) => {
-    fs.readFile(USERS_FILE, 'utf8', (err, data) => {
-        if (err) return res.status(500).json({ error: 'Cannot read users file' });
-        res.json(JSON.parse(data || '[]'));
-    });
-});
 
 // Đăng ký user mới
 app.post('/api/register', (req, res) => {
@@ -38,7 +132,7 @@ app.post('/api/register', (req, res) => {
         users.push(newUser);
         fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), err2 => {
             if (err2) return res.status(500).json({ error: 'Cannot save user' });
-            res.json({ success: true, user: newUser });
+            res.json({ success: true, user: sanitizeUser(newUser) });
         });
     });
 });
@@ -51,7 +145,7 @@ app.post('/api/login', (req, res) => {
         if (!err && data) users = JSON.parse(data);
         const user = users.find(u => u.username === username && u.password === password);
         if (!user) return res.status(401).json({ error: 'Invalid credentials' });
-        res.json({ success: true, user });
+        res.json({ success: true, user: sanitizeUser(user) });
     });
 });
 
@@ -67,7 +161,7 @@ app.put('/api/users/:username', (req, res) => {
         users[idx] = { ...users[idx], email, balance, role };
         fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), err2 => {
             if (err2) return res.status(500).json({ error: 'Cannot update user' });
-            res.json({ success: true, user: users[idx] });
+            res.json({ success: true, user: sanitizeUser(users[idx]) });
         });
     });
 });
@@ -118,7 +212,7 @@ app.post('/api/upload-accounts', (req, res) => {
     });
 });
 
-// API đọc file ACC.txt
+// API đọc file ACC.txt (public, chỉ trả về id, points, username (mask), websites)
 app.get('/api/accounts', (req, res) => {
     const accFile = path.join(__dirname, ACCOUNTS_FILE);
     fs.readFile(accFile, 'utf8', (err, data) => {
@@ -126,13 +220,26 @@ app.get('/api/accounts', (req, res) => {
             console.error('Error reading ACC.txt:', err);
             return res.status(500).json({ error: 'Cannot read accounts file' });
         }
-        res.json({ data });
+        const accounts = data.trim().split('\n').filter(line => line.trim());
+        const accountIds = accounts.map(account => {
+            const parts = account.split('|');
+            const id = generateAccountId(account);
+            const points = parts[5] || '0';
+            const username = parts[2] || '';
+            const maskedUsername = username.length > 2 ? username.substring(0,2) + '****' : username + '****';
+            const websites = parts[7] || '';
+            return { id, points, username: maskedUsername, websites };
+        });
+        res.json({ 
+            total: accounts.length,
+            accounts: accountIds
+        });
     });
 });
 
-// API xóa tài khoản (ẩn khỏi shop)
+// API xóa tài khoản (ẩn khỏi shop) - sử dụng accountId
 app.post('/api/accounts/hide', (req, res) => {
-    const { accountLine } = req.body; // Dòng tài khoản cần ẩn
+    const { accountId } = req.body; // ID tài khoản cần ẩn
     const accFile = path.join(__dirname, ACCOUNTS_FILE);
     const hiddenFile = path.join(__dirname, HIDDEN_ACCOUNTS_FILE);
     
@@ -141,11 +248,17 @@ app.post('/api/accounts/hide', (req, res) => {
             return res.status(500).json({ error: 'Cannot read accounts file' });
         }
         
-        const lines = data.split('\n');
-        const newLines = lines.filter(line => line.trim() !== accountLine.trim());
+        const lines = data.split('\n').filter(line => line.trim());
+        const accountToHide = lines.find(line => generateAccountId(line) === accountId);
+        
+        if (!accountToHide) {
+            return res.status(404).json({ error: 'Account not found' });
+        }
+        
+        const newLines = lines.filter(line => generateAccountId(line) !== accountId);
         
         // Lưu tài khoản đã ẩn vào file riêng
-        fs.appendFile(hiddenFile, accountLine + '\n', (err2) => {
+        fs.appendFile(hiddenFile, accountToHide + '\n', (err2) => {
             if (err2) {
                 console.error('Error saving hidden account:', err2);
             }
@@ -161,30 +274,185 @@ app.post('/api/accounts/hide', (req, res) => {
     });
 });
 
-// API khôi phục tài khoản (hiện lại trên shop)
+// API khôi phục tài khoản (hiện lại trên shop) - sử dụng accountId
 app.post('/api/accounts/restore', (req, res) => {
-    const { accountLine } = req.body; // Dòng tài khoản cần khôi phục
+    const { accountId } = req.body; // ID tài khoản cần khôi phục
     const accFile = path.join(__dirname, ACCOUNTS_FILE);
     const hiddenFile = path.join(__dirname, HIDDEN_ACCOUNTS_FILE);
     
-    // Thêm tài khoản trở lại ACC.txt
-    fs.appendFile(accFile, accountLine + '\n', (err) => {
+    // Tìm tài khoản trong file hidden
+    fs.readFile(hiddenFile, 'utf8', (err, data) => {
         if (err) {
-            return res.status(500).json({ error: 'Cannot restore account' });
+            return res.status(500).json({ error: 'Cannot read hidden accounts file' });
         }
         
-        // Xóa khỏi file hidden_accounts.txt
-        fs.readFile(hiddenFile, 'utf8', (err2, data) => {
-            if (!err2 && data) {
-                const lines = data.split('\n');
-                const newLines = lines.filter(line => line.trim() !== accountLine.trim());
-                fs.writeFile(hiddenFile, newLines.join('\n'), (err3) => {
-                    if (err3) {
-                        console.error('Error updating hidden accounts file:', err3);
-                    }
-                });
+        const lines = data.split('\n').filter(line => line.trim());
+        const accountToRestore = lines.find(line => generateAccountId(line) === accountId);
+        
+        if (!accountToRestore) {
+            return res.status(404).json({ error: 'Account not found in hidden list' });
+        }
+        
+        // Thêm tài khoản trở lại ACC.txt
+        fs.appendFile(accFile, accountToRestore + '\n', (err2) => {
+            if (err2) {
+                return res.status(500).json({ error: 'Cannot restore account' });
             }
+            
+            // Xóa khỏi file hidden_accounts.txt
+            const newLines = lines.filter(line => generateAccountId(line) !== accountId);
+            fs.writeFile(hiddenFile, newLines.join('\n'), (err3) => {
+                if (err3) {
+                    console.error('Error updating hidden accounts file:', err3);
+                }
+            });
             res.json({ success: true });
+        });
+    });
+});
+
+// API lấy thông tin chi tiết tài khoản (chỉ cho admin, dữ liệu được mã hóa)
+app.get('/api/accounts/:accountId/details', (req, res) => {
+    const { accountId } = req.params;
+    const { username } = req.query;
+    
+    if (!username) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    // Kiểm tra quyền admin
+    fs.readFile(USERS_FILE, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Cannot read users file' });
+        const users = JSON.parse(data || '[]');
+        const user = users.find(u => u.username === username);
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        // Tiếp tục xử lý nếu là admin
+        const accFile = path.join(__dirname, ACCOUNTS_FILE);
+        
+        fs.readFile(accFile, 'utf8', (err2, data2) => {
+            if (err2) {
+                return res.status(500).json({ error: 'Cannot read accounts file' });
+            }
+            
+            const accounts = data2.trim().split('\n').filter(line => line.trim());
+            const account = accounts.find(acc => generateAccountId(acc) === accountId);
+            
+            if (!account) {
+                return res.status(404).json({ error: 'Account not found' });
+            }
+            
+            // Trả về dữ liệu được mã hóa
+            res.json({ 
+                success: true,
+                encryptedData: encrypt(account)
+            });
+        });
+    });
+});
+
+// API admin - lấy dữ liệu chi tiết orders (không sanitized)
+app.get('/api/admin/orders', (req, res) => {
+    const { username } = req.query;
+    if (!username) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    fs.readFile(USERS_FILE, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Cannot read users file' });
+        const users = JSON.parse(data || '[]');
+        const user = users.find(u => u.username === username);
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        fs.readFile(ORDERS_FILE, 'utf8', (err2, data2) => {
+            if (err2 && err2.code !== 'ENOENT') {
+                return res.status(500).json({ error: 'Cannot read orders file' });
+            }
+            const orders = data2 ? JSON.parse(data2) : [];
+            res.json(orders); // Return full data for admin
+        });
+    });
+});
+
+// API admin - lấy dữ liệu chi tiết users (không sanitized)
+app.get('/api/admin/users', (req, res) => {
+    const { username } = req.query;
+    if (!username) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    fs.readFile(USERS_FILE, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Cannot read users file' });
+        const users = JSON.parse(data || '[]');
+        const user = users.find(u => u.username === username);
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        res.json(users); // Return full data for admin
+    });
+});
+
+// API admin - lấy dữ liệu chi tiết accounts (không sanitized)
+app.get('/api/admin/accounts', (req, res) => {
+    const { username } = req.query;
+    if (!username) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    fs.readFile(USERS_FILE, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Cannot read users file' });
+        const users = JSON.parse(data || '[]');
+        const user = users.find(u => u.username === username);
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const accFile = path.join(__dirname, ACCOUNTS_FILE);
+        fs.readFile(accFile, 'utf8', (err2, data2) => {
+            if (err2) {
+                console.error('Error reading ACC.txt:', err2);
+                return res.status(500).json({ error: 'Cannot read accounts file' });
+            }
+            res.json({ data: data2 }); // Return full data for admin
+        });
+    });
+});
+
+// API admin - lấy danh sách tài khoản đã ẩn
+app.get('/api/admin/hidden-accounts', (req, res) => {
+    const { username } = req.query;
+    if (!username) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    fs.readFile(USERS_FILE, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Cannot read users file' });
+        const users = JSON.parse(data || '[]');
+        const user = users.find(u => u.username === username);
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const hiddenFile = path.join(__dirname, HIDDEN_ACCOUNTS_FILE);
+        fs.readFile(hiddenFile, 'utf8', (err2, data2) => {
+            if (err2 && err2.code !== 'ENOENT') {
+                return res.status(500).json({ error: 'Cannot read hidden accounts file' });
+            }
+            const accounts = data2 ? data2.trim().split('\n').filter(line => line.trim()) : [];
+            const accountIds = accounts.map(account => ({
+                id: generateAccountId(account),
+                points: account.split('|')[4] || '0',
+                websites: account.split('|')[7] || ''
+            }));
+            res.json({ 
+                total: accounts.length,
+                accounts: accountIds
+            });
         });
     });
 });
@@ -196,7 +464,8 @@ app.get('/api/orders', (req, res) => {
             return res.status(500).json({ error: 'Cannot read orders file' });
         }
         const orders = data ? JSON.parse(data) : [];
-        res.json(orders);
+        const sanitizedOrders = orders.map(order => sanitizeOrder(order));
+        res.json(sanitizedOrders);
     });
 });
 
@@ -209,7 +478,7 @@ app.post('/api/orders', (req, res) => {
         orders.push(order);
         fs.writeFile(ORDERS_FILE, JSON.stringify(orders, null, 2), err2 => {
             if (err2) return res.status(500).json({ error: 'Cannot save order' });
-            res.json({ success: true, order });
+            res.json({ success: true, order: sanitizeOrder(order) });
         });
     });
 });
@@ -247,7 +516,7 @@ app.put('/api/orders/:id', (req, res) => {
         
         fs.writeFile(ORDERS_FILE, JSON.stringify(orders, null, 2), err2 => {
             if (err2) return res.status(500).json({ error: 'Cannot update order' });
-            res.json({ success: true, order: orders[idx] });
+            res.json({ success: true, order: sanitizeOrder(orders[idx]) });
         });
     });
 });
@@ -277,8 +546,24 @@ app.get('/api/orders/user/:username', (req, res) => {
         }
         const orders = data ? JSON.parse(data) : [];
         const userOrders = orders.filter(order => order.userId === username);
-        res.json(userOrders);
+        const sanitizedUserOrders = userOrders.map(order => sanitizeOrder(order));
+        res.json(sanitizedUserOrders);
     });
+});
+
+// API giải mã dữ liệu (chỉ cho admin)
+app.post('/api/decrypt', (req, res) => {
+    const { encryptedData } = req.body;
+    if (!encryptedData) {
+        return res.status(400).json({ error: 'Encrypted data is required' });
+    }
+    
+    try {
+        const decryptedData = decrypt(encryptedData);
+        res.json({ success: true, decryptedData });
+    } catch (error) {
+        res.status(400).json({ error: 'Invalid encrypted data' });
+    }
 });
 
 // Khởi tạo file users.json nếu chưa có

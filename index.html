@@ -487,7 +487,6 @@
         // Event Listeners
         document.addEventListener('DOMContentLoaded', async function() {
             setupEventListeners();
-            await loadUsers(); // Load users trước
             await loadAccounts();
             checkAuthStatus();
         });
@@ -630,7 +629,8 @@
                 return;
             }
             
-            // Kiểm tra username đã tồn tại chưa
+            // Đăng ký user mới: kiểm tra username trùng bằng cách gọi /api/admin/users nếu là admin, hoặc bỏ qua kiểm tra nếu là user thường
+            // Vì hiện tại không có API /api/admin/users, nên chỉ kiểm tra username trùng trong localStorage
             if (users.find(u => u.username === username)) {
                 showNotification('Tên đăng nhập đã tồn tại!', 'error');
                 return;
@@ -759,13 +759,14 @@
                 }
                 
                 const result = await response.json();
-                console.log('API Response data length:', result.data ? result.data.length : 'no data');
+                console.log('API Response data:', result);
                 
                 if (result.error) {
                     throw new Error(result.error);
                 }
                 
-                accounts = parseAccounts(result.data);
+                // Đảm bảo chỉ sử dụng id, points, username (đã mask), websites từ API /api/accounts
+                accounts = result.accounts || [];
                 console.log('Parsed accounts count:', accounts.length);
                 updateStats();
                 renderAccounts();
@@ -775,34 +776,14 @@
             }
         }
 
-        function parseAccounts(data) {
-            return data.trim().split('\n').map(line => {
-                const parts = line.split('|');
-                if (parts.length >= 8) {
-                    return {
-                        privateKey: parts[0],
-                        proxy: parts[1],
-                        username: parts[2],
-                        password: parts[3],
-                        status: parts[4],
-                        points: parseInt(parts[5]) || 0,
-                        message: parts[6],
-                        websites: parts[7],
-                        note: parts[8] || ''
-                    };
-                }
-                return null;
-            }).filter(account => account !== null);
-        }
-
         function updateStats() {
             document.getElementById('totalAccounts').textContent = accounts.length;
-            const totalPoints = accounts.reduce((sum, acc) => sum + acc.points, 0);
+            const totalPoints = accounts.reduce((sum, acc) => sum + parseInt(acc.points), 0);
             document.getElementById('totalPoints').textContent = totalPoints.toLocaleString();
             
             // Tính tổng giá trị
             const totalValue = accounts.reduce((sum, acc) => {
-                const price = Math.ceil(acc.points / 2) * 1000 + 5000;
+                const price = Math.ceil(parseInt(acc.points) / 2) * 1000 + 5000;
                 return sum + price;
             }, 0);
             
@@ -819,7 +800,7 @@
 
             accountsList.innerHTML = filteredAccounts.map(account => {
                 // Tính giá: (điểm ÷ 2) * 1000 + 5,000 VND, làm tròn lên
-                const price = Math.ceil(account.points / 2) * 1000 + 5000;
+                const price = Math.ceil(parseInt(account.points) / 2) * 1000 + 5000;
                 
                 return `
                 <div class="glass-effect rounded-2xl p-6 card-hover transition-all duration-300">
@@ -831,7 +812,7 @@
                             </div>
                             <div class="text-center">
                                 <div class="text-sm text-gray-400 mb-1">Trạng thái</div>
-                                <div class="text-green-400 text-sm">${account.status}</div>
+                                <div class="text-green-400 text-sm">Có sẵn</div>
                             </div>
                             <div class="text-center">
                                 <div class="text-sm text-gray-400 mb-1">Giá bán</div>
@@ -850,13 +831,12 @@
                                         data-points="${account.points}" 
                                         data-price="${price}" 
                                         data-websites="${account.websites}"
-                                        data-account-line="${account.privateKey}|${account.proxy}|${account.username}|${account.password}|${account.status}|${account.points}|${account.message}|${account.websites}|${account.note}">
+                                        data-account-id="${account.id}">
                                     Mua ngay
                                 </button>
                             </div>
                         </div>
                     </div>
-                    ${account.note ? `<div class="mt-4 pt-4 border-t border-white/20 text-sm text-gray-400">${account.note}</div>` : ''}
                 </div>
             `}).join('');
         }
@@ -875,9 +855,9 @@
             if (priceFilter) {
                 const [min, max] = priceFilter.split('-').map(Number);
                 if (max) {
-                    filtered = filtered.filter(acc => acc.points >= min && acc.points <= max);
+                    filtered = filtered.filter(acc => parseInt(acc.points) >= min && parseInt(acc.points) <= max);
                 } else {
-                    filtered = filtered.filter(acc => acc.points >= min);
+                    filtered = filtered.filter(acc => parseInt(acc.points) >= min);
                 }
             }
 
@@ -885,9 +865,8 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             if (searchTerm) {
                 filtered = filtered.filter(acc => 
-                    acc.privateKey.toLowerCase().includes(searchTerm) ||
-                    acc.proxy.toLowerCase().includes(searchTerm) ||
-                    acc.websites.toLowerCase().includes(searchTerm)
+                    acc.websites.toLowerCase().includes(searchTerm) ||
+                    acc.points.toString().includes(searchTerm)
                 );
             }
 
@@ -1087,6 +1066,7 @@
             const points = parseInt(button.dataset.points);
             const price = parseInt(button.dataset.price);
             const websites = button.dataset.websites;
+            const accountId = button.dataset.accountId;
             
             if (currentUser.balance < price) {
                 showNotification(`Số dư không đủ! Cần ${formatCurrency(price)} nhưng chỉ có ${formatCurrency(currentUser.balance)}`, 'error');
@@ -1098,8 +1078,8 @@
                 points: points,
                 price: price,
                 websites: websites,
-                button: button,
-                accountLine: button.dataset.accountLine // Lưu dòng tài khoản để xóa/khôi phục
+                accountId: accountId,
+                button: button
             };
             
             // Cập nhật thông tin trong modal
@@ -1168,7 +1148,7 @@
                 accountPoints: currentBuyingAccount.points,
                 accountPrice: currentBuyingAccount.price,
                 accountWebsites: currentBuyingAccount.websites,
-                accountLine: currentBuyingAccount.accountLine, // Lưu dòng tài khoản để khôi phục
+                accountId: currentBuyingAccount.accountId, // Sử dụng accountId thay vì accountLine
                 status: 'pending', // chờ duyệt
                 timestamp: Date.now(),
                 createdAt: new Date().toISOString(),
@@ -1188,7 +1168,7 @@
                     return fetch('/api/accounts/hide', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ accountLine: currentBuyingAccount.accountLine })
+                        body: JSON.stringify({ accountId: currentBuyingAccount.accountId })
                     });
                 } else {
                     throw new Error(data.error || 'Lỗi khi tạo đơn hàng');

@@ -86,5 +86,21 @@
     "balance": 477917,
     "adminNote": "Lý do không duyệt: ko được",
     "updatedAt": "2025-07-13T10:35:07.700Z"
+  },
+  {
+    "id": "1752407800544",
+    "userId": "thienthuan",
+    "userEmail": "th***@gmail.com",
+    "selectedGame": "OK9",
+    "gameUsername": "43",
+    "phoneLast4": "2342",
+    "accountPoints": 165,
+    "accountPrice": 88000,
+    "accountWebsites": "OK9 78win F168 MB66 QQ88",
+    "accountId": "b798df3c",
+    "status": "pending",
+    "timestamp": 1752407800544,
+    "createdAt": "2025-07-13T11:56:40.544Z",
+    "balance": 562000
   }
 ]

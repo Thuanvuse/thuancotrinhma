@@ -410,7 +410,7 @@
     // Quản lý user như cũ
     let users = [];
     function fetchUsers() {
-        fetch('/api/users')
+        fetch(`/api/admin/users?username=${encodeURIComponent(currentUser.username)}`)
             .then(res => res.json())
             .then(data => {
                 users = data;
@@ -421,17 +421,38 @@
     // Quản lý tài khoản shop
     let accounts = [];
     function fetchAccounts() {
-        fetch('/api/accounts')
-            .then(res => res.json())
-            .then(data => {
-                accounts = parseAccounts(data.data);
-                renderAccounts();
-            })
-            .catch(error => {
-                console.error('Error fetching accounts:', error);
-                accounts = [];
-                renderAccounts();
-            });
+        if (isAdminUser(currentUser)) {
+            // Nếu là admin, gọi API admin để lấy đầy đủ thông tin
+            fetch(`/api/admin/accounts?username=${encodeURIComponent(currentUser.username)}`)
+                .then(res => res.json())
+                .then(data => {
+                    accounts = parseAccounts(data.data);
+                    renderAccounts();
+                })
+                .catch(error => {
+                    console.error('Error fetching accounts:', error);
+                    // Fallback to public API if admin API fails
+                    fetch('/api/accounts')
+                        .then(res => res.json())
+                        .then(data => {
+                            accounts = data.accounts || [];
+                            renderAccounts();
+                        });
+                });
+        } else {
+            // Nếu không phải admin, gọi API public để lấy id, points, username (đã mask), websites
+            fetch('/api/accounts')
+                .then(res => res.json())
+                .then(data => {
+                    accounts = data.accounts || [];
+                    renderAccounts();
+                })
+                .catch(error => {
+                    console.error('Error fetching accounts:', error);
+                    accounts = []; // Clear accounts if public API fails
+                    renderAccounts();
+                });
+        }
     }
 
     function parseAccounts(data) {
@@ -448,11 +469,23 @@
                     message: parts[6],
                     websites: parts[7],
                     note: parts[8] || '',
-                    accountLine: line
+                    accountLine: line,
+                    id: generateAccountId(line)
                 };
             }
             return null;
         }).filter(account => account !== null);
+    }
+
+    function generateAccountId(accountLine) {
+        // Simple hash function for account ID
+        let hash = 0;
+        for (let i = 0; i < accountLine.length; i++) {
+            const char = accountLine.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return Math.abs(hash).toString(16).substring(0, 8);
     }
 
     function renderAccounts() {
@@ -465,7 +498,7 @@
         }
         
         tbody.innerHTML = filteredAccounts.map((account, idx) => {
-            const price = Math.ceil(account.points / 2) * 1000 + 5000;
+            const price = Math.ceil(parseInt(account.points) / 2) * 1000 + 5000;
             
             return `
                 <tr class="border-b border-white/10">
@@ -508,9 +541,9 @@
         if (pointsFilter) {
             const [min, max] = pointsFilter.split('-').map(Number);
             if (max) {
-                filtered = filtered.filter(acc => acc.points >= min && acc.points <= max);
+                filtered = filtered.filter(acc => parseInt(acc.points) >= min && parseInt(acc.points) <= max);
             } else {
-                filtered = filtered.filter(acc => acc.points >= min);
+                filtered = filtered.filter(acc => parseInt(acc.points) >= min);
             }
         }
 
@@ -521,7 +554,8 @@
                 acc.privateKey.toLowerCase().includes(searchTerm) ||
                 acc.proxy.toLowerCase().includes(searchTerm) ||
                 acc.websites.toLowerCase().includes(searchTerm) ||
-                acc.note.toLowerCase().includes(searchTerm)
+                acc.note.toLowerCase().includes(searchTerm) ||
+                acc.points.toString().includes(searchTerm)
             );
         }
 
@@ -598,7 +632,7 @@
     // Quản lý đơn hàng
     let orders = [];
     function fetchOrders() {
-        fetch('/api/orders')
+        fetch(`/api/admin/orders?username=${encodeURIComponent(currentUser.username)}`)
             .then(res => res.json())
             .then(data => {
                 orders = data;
@@ -606,8 +640,13 @@
             })
             .catch(error => {
                 console.error('Error fetching orders:', error);
-                orders = [];
-                renderOrders();
+                // Fallback to public API if admin API fails
+                fetch('/api/orders')
+                    .then(res => res.json())
+                    .then(data => {
+                        orders = data;
+                        renderOrders();
+                    });
             });
     }
 
@@ -736,7 +775,7 @@
         fetch('/api/accounts/restore', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ accountLine: order.accountLine })
+            body: JSON.stringify({ accountId: order.accountId })
         })
         .then(res => res.json())
         .then(data => {
@@ -880,7 +919,7 @@
             fetch('/api/accounts/hide', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ accountLine: account.accountLine })
+                body: JSON.stringify({ accountId: account.id })
             })
             .then(res => res.json())
             .then(data => {
@@ -902,6 +941,35 @@
         const account = accounts[idx];
         alert('Chức năng sửa tài khoản sẽ được phát triển sau!');
         // TODO: Implement edit account functionality
+    }
+
+    // Thêm API để lấy dữ liệu chi tiết tài khoản (cho admin)
+    function getAccountDetails(accountId) {
+        return fetch(`/api/accounts/${accountId}/details?username=${encodeURIComponent(currentUser.username)}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Giải mã dữ liệu
+                return fetch('/api/decrypt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ encryptedData: data.encryptedData })
+                });
+            } else {
+                throw new Error(data.error || 'Không thể lấy thông tin tài khoản');
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                return data.decryptedData;
+            } else {
+                throw new Error('Không thể giải mã dữ liệu');
+            }
+        });
     }
     </script>
 </body>
