@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý tài khoản - OKVIP SHOP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        purple: { 600: '#9333ea' }, pink: { 600: '#db2777' }, green: { 400: '#4ade80' }, red: { 500: '#ef4444' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-pink-900 to-purple-800 min-h-screen text-white">
+    <nav class="glass-effect border-b border-white/20">
+        <div class="max-w-5xl mx-auto px-4 flex justify-between items-center h-16">
+            <div class="flex items-center space-x-4">
+                <img src="https://okvipau.com/_nuxt/img/logo.2889c23.png" alt="OKVIP SHOP" class="h-10 w-auto">
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Quản lý tài khoản</h1>
+            </div>
+            <a href="index.html" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 font-medium">Về trang chính</a>
+        </div>
+    </nav>
+
+    <!-- Form đăng nhập admin nếu chưa đăng nhập hoặc không phải admin -->
+    <div id="adminLoginSection" class="flex flex-col items-center justify-center min-h-[60vh] py-8 hidden">
+        <div class="bg-white/10 rounded-2xl p-8 shadow-xl max-w-sm w-full">
+            <h2 class="text-xl font-bold mb-6 text-center">Đăng nhập Admin</h2>
+            <form id="adminLoginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Tên đăng nhập</label>
+                    <input type="text" id="adminUsername" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Mật khẩu</label>
+                    <input type="password" id="adminPassword" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                </div>
+                <button type="submit" class="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold">Đăng nhập</button>
+            </form>
+            <div id="adminLoginError" class="text-red-400 text-center mt-4 hidden"></div>
+        </div>
+    </div>
+
+    <!-- Quản lý user -->
+    <div id="adminPanel" class="max-w-7xl mx-auto px-4 py-8 hidden">
+        <!-- Tab Navigation -->
+        <div class="flex space-x-4 mb-6">
+            <button id="usersTab" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-medium active-tab">
+                Quản lý User
+            </button>
+            <button id="ordersTab" class="px-6 py-3 bg-white/10 rounded-lg font-medium hover:bg-white/20 transition-colors">
+                Đơn hàng chờ duyệt
+            </button>
+            <button id="accountsTab" class="px-6 py-3 bg-white/10 rounded-lg font-medium hover:bg-white/20 transition-colors">
+                Quản lý Tài khoản Shop
+            </button>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="usersSection" class="bg-white/10 rounded-2xl p-6 shadow-xl">
+            <h2 class="text-xl font-bold mb-6">Danh sách tài khoản người dùng</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm text-left">
+                    <thead>
+                        <tr class="bg-purple-800/40">
+                            <th class="px-4 py-2">Tên đăng nhập</th>
+                            <th class="px-4 py-2">Email</th>
+                            <th class="px-4 py-2">Số dư</th>
+                            <th class="px-4 py-2">Quyền</th>
+                            <th class="px-4 py-2">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody" class="bg-white/5">
+                        <!-- User rows sẽ được render ở đây -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div id="ordersSection" class="bg-white/10 rounded-2xl p-6 shadow-xl hidden">
+            <h2 class="text-xl font-bold mb-6">Đơn hàng chờ duyệt</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm text-left">
+                    <thead>
+                        <tr class="bg-purple-800/40">
+                            <th class="px-4 py-2">Thời gian</th>
+                            <th class="px-4 py-2">Người mua</th>
+                            <th class="px-4 py-2">Game chọn</th>
+                            <th class="px-4 py-2">Tên game</th>
+                            <th class="px-4 py-2">SĐT (4 số cuối)</th>
+                            <th class="px-4 py-2">Tài khoản</th>
+                            <th class="px-4 py-2">Giá</th>
+                            <th class="px-4 py-2">Trạng thái</th>
+                            <th class="px-4 py-2">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody" class="bg-white/5">
+                        <!-- Order rows sẽ được render ở đây -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Accounts Tab -->
+        <div id="accountsSection" class="bg-white/10 rounded-2xl p-6 shadow-xl hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">Quản lý Tài khoản Shop</h2>
+                <div class="flex space-x-2">
+                    <button id="refreshAccountsBtn" class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 font-medium text-white">
+                        Làm mới
+                    </button>
+                    <button id="uploadAccountsBtn" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-medium text-white">
+                        Upload Tài khoản
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Website</label>
+                    <select id="accountWebsiteFilter" class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500">
+                        <option value="">Tất cả</option>
+                        <option value="OK9">OK9</option>
+                        <option value="78win">78win</option>
+                        <option value="F168">F168</option>
+                        <option value="MB66">MB66</option>
+                        <option value="QQ88">QQ88</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Khoảng điểm</label>
+                    <select id="accountPointsFilter" class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500">
+                        <option value="">Tất cả</option>
+                        <option value="0-50">0 - 50 điểm</option>
+                        <option value="51-100">51 - 100 điểm</option>
+                        <option value="101-200">101 - 200 điểm</option>
+                        <option value="200+">200+ điểm</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Tìm kiếm</label>
+                    <input type="text" id="accountSearchInput" placeholder="Tìm kiếm..." class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500">
+                </div>
+                <div class="flex items-end">
+                    <button id="filterAccountsBtn" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-medium">
+                        Lọc
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm text-left">
+                    <thead>
+                        <tr class="bg-purple-800/40">
+                            <th class="px-4 py-2">Điểm</th>
+                            <th class="px-4 py-2">Trạng thái</th>
+                            <th class="px-4 py-2">Giá bán</th>
+                            <th class="px-4 py-2">Websites</th>
+                            <th class="px-4 py-2">Ghi chú</th>
+                            <th class="px-4 py-2">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accountsTableBody" class="bg-white/5">
+                        <!-- Account rows sẽ được render ở đây -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal chỉnh sửa -->
+    <div id="editModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+                <h3 class="text-xl font-bold mb-4">Chỉnh sửa tài khoản</h3>
+                <form id="editUserForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Tên đăng nhập</label>
+                        <input type="text" id="editUsername" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required readonly>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Email</label>
+                        <input type="email" id="editEmail" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Số dư</label>
+                        <input type="number" id="editBalance" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" min="0" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Quyền</label>
+                        <select id="editRole" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-2 pt-2">
+                        <button type="button" id="closeEditModal" class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">Hủy</button>
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold">Lưu</button>
+                    </div>
+                </form>
+                <button id="closeEditModalX" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal upload tài khoản -->
+    <div id="uploadAccountsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative">
+                <h3 class="text-xl font-bold mb-4">Upload Tài khoản</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Chọn file ACC.txt</label>
+                        <input type="file" id="accountsFile" accept=".txt" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Hoặc paste nội dung trực tiếp</label>
+                        <textarea id="accountsContent" rows="10" placeholder="Paste nội dung tài khoản theo format: privateKey|proxy|username|password|status|points|message|websites|note" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+                    </div>
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            <div class="text-sm text-yellow-700 dark:text-yellow-300">
+                                <strong>Lưu ý:</strong> Format tài khoản phải đúng: privateKey|proxy|username|password|status|points|message|websites|note
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-2 pt-2">
+                        <button type="button" id="closeUploadModal" class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">Hủy</button>
+                        <button type="button" id="uploadAccountsSubmit" class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold">Upload</button>
+                    </div>
+                </div>
+                <button id="closeUploadModalX" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal không duyệt đơn hàng -->
+    <div id="rejectOrderModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+                <h3 class="text-xl font-bold mb-4 text-red-600">Không duyệt đơn hàng</h3>
+                <div class="space-y-4">
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            <div class="text-sm text-red-700 dark:text-red-300">
+                                <strong>Lưu ý:</strong> Khi không duyệt, tài khoản sẽ được khôi phục về shop và tiền sẽ được hoàn lại cho khách hàng.
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Lý do không duyệt (bắt buộc)</label>
+                        <textarea id="rejectReason" rows="4" placeholder="Nhập lý do không duyệt đơn hàng này..." required class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-2 pt-2">
+                        <button type="button" id="closeRejectModal" class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">Hủy</button>
+                        <button type="button" id="confirmRejectBtn" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold">Xác nhận không duyệt</button>
+                    </div>
+                </div>
+                <button id="closeRejectModalX" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal xử lý đơn hàng -->
+    <div id="orderModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+                <h3 class="text-xl font-bold mb-4">Xử lý đơn hàng</h3>
+                <div id="orderDetails" class="space-y-4 mb-6">
+                    <!-- Order details will be populated here -->
+                </div>
+                <form id="orderActionForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Trạng thái</label>
+                        <select id="orderStatus" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="pending">Chờ duyệt</option>
+                            <option value="approved">Đã duyệt</option>
+                            <option value="rejected">Từ chối</option>
+                            <option value="completed">Hoàn thành</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Ghi chú (tùy chọn)</label>
+                        <textarea id="adminNote" rows="3" placeholder="Nhập ghi chú cho khách hàng..." class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-2 pt-2">
+                        <button type="button" id="closeOrderModal" class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">Hủy</button>
+                        <button type="button" id="rejectOrderBtn" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold">Không duyệt</button>
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold">Cập nhật</button>
+                    </div>
+                </form>
+                <button id="closeOrderModalX" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Kiểm tra quyền admin, nếu chưa đúng thì hiển thị form đăng nhập admin
+    let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    function isAdminUser(user) {
+        return user && user.role === 'admin' && user.username === 'thuanjqka';
+    }
+    function showAdminPanel() {
+        document.getElementById('adminLoginSection').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        fetchUsers();
+        fetchOrders();
+        fetchAccounts();
+    }
+    function showAdminLogin() {
+        document.getElementById('adminPanel').classList.add('hidden');
+        document.getElementById('adminLoginSection').classList.remove('hidden');
+    }
+    if (!isAdminUser(currentUser)) {
+        showAdminLogin();
+    } else {
+        showAdminPanel();
+    }
+
+    // Xử lý đăng nhập admin
+    document.getElementById('adminLoginForm').onsubmit = function(e) {
+        e.preventDefault();
+        const username = document.getElementById('adminUsername').value;
+        const password = document.getElementById('adminPassword').value;
+        fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && isAdminUser(data.user)) {
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
+                currentUser = data.user;
+                showAdminPanel();
+            } else {
+                document.getElementById('adminLoginError').textContent = 'Sai tài khoản hoặc không có quyền admin!';
+                document.getElementById('adminLoginError').classList.remove('hidden');
+            }
+        });
+    };
+
+    // Tab management
+    document.getElementById('usersTab').onclick = function() {
+        document.getElementById('usersSection').classList.remove('hidden');
+        document.getElementById('ordersSection').classList.add('hidden');
+        document.getElementById('usersTab').classList.add('bg-gradient-to-r', 'from-purple-600', 'to-pink-600');
+        document.getElementById('usersTab').classList.remove('bg-white/10');
+        document.getElementById('ordersTab').classList.remove('bg-gradient-to-r', 'from-purple-600', 'to-pink-600');
+        document.getElementById('ordersTab').classList.add('bg-white/10');
+    };
+    
+    document.getElementById('ordersTab').onclick = function() {
+        document.getElementById('ordersSection').classList.remove('hidden');
+        document.getElementById('usersSection').classList.add('hidden');
+        document.getElementById('accountsSection').classList.add('hidden');
+        document.getElementById('ordersTab').classList.add('bg-gradient-to-r', 'from-purple-600', 'to-pink-600');
+        document.getElementById('ordersTab').classList.remove('bg-white/10');
+        document.getElementById('usersTab').classList.remove('bg-gradient-to-r', 'from-purple-600', 'to-pink-600');
+        document.getElementById('usersTab').classList.add('bg-white/10');
+        document.getElementById('accountsTab').classList.remove('bg-gradient-to-r', 'from-purple-600', 'to-pink-600');
+        document.getElementById('accountsTab').classList.add('bg-white/10');
+        fetchOrders();
+    };
+    
+    document.getElementById('accountsTab').onclick = function() {
+        document.getElementById('accountsSection').classList.remove('hidden');
+        document.getElementById('usersSection').classList.add('hidden');
+        document.getElementById('ordersSection').classList.add('hidden');
+        document.getElementById('accountsTab').classList.add('bg-gradient-to-r', 'from-purple-600', 'to-pink-600');
+        document.getElementById('accountsTab').classList.remove('bg-white/10');
+        document.getElementById('usersTab').classList.remove('bg-gradient-to-r', 'from-purple-600', 'to-pink-600');
+        document.getElementById('usersTab').classList.add('bg-white/10');
+        document.getElementById('ordersTab').classList.remove('bg-gradient-to-r', 'from-purple-600', 'to-pink-600');
+        document.getElementById('ordersTab').classList.add('bg-white/10');
+        fetchAccounts();
+    };
+
+    // Quản lý user như cũ
+    let users = [];
+    function fetchUsers() {
+        fetch('/api/users')
+            .then(res => res.json())
+            .then(data => {
+                users = data;
+                renderUsers();
+            });
+    }
+
+    // Quản lý tài khoản shop
+    let accounts = [];
+    function fetchAccounts() {
+        fetch('/api/accounts')
+            .then(res => res.json())
+            .then(data => {
+                accounts = parseAccounts(data.data);
+                renderAccounts();
+            })
+            .catch(error => {
+                console.error('Error fetching accounts:', error);
+                accounts = [];
+                renderAccounts();
+            });
+    }
+
+    function parseAccounts(data) {
+        return data.trim().split('\n').map(line => {
+            const parts = line.split('|');
+            if (parts.length >= 8) {
+                return {
+                    privateKey: parts[0],
+                    proxy: parts[1],
+                    username: parts[2],
+                    password: parts[3],
+                    status: parts[4],
+                    points: parseInt(parts[5]) || 0,
+                    message: parts[6],
+                    websites: parts[7],
+                    note: parts[8] || '',
+                    accountLine: line
+                };
+            }
+            return null;
+        }).filter(account => account !== null);
+    }
+
+    function renderAccounts() {
+        const tbody = document.getElementById('accountsTableBody');
+        const filteredAccounts = getFilteredAccounts();
+        
+        if (filteredAccounts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">Không có tài khoản nào</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = filteredAccounts.map((account, idx) => {
+            const price = Math.ceil(account.points / 2) * 1000 + 5000;
+            
+            return `
+                <tr class="border-b border-white/10">
+                    <td class="px-4 py-2 font-bold text-purple-400">${account.points}</td>
+                    <td class="px-4 py-2">
+                        <span class="px-2 py-1 rounded text-xs text-white ${account.status === 'active' ? 'bg-green-500' : 'bg-red-500'}">${account.status}</span>
+                    </td>
+                    <td class="px-4 py-2 text-green-400 font-bold">${formatCurrency(price)}</td>
+                    <td class="px-4 py-2">
+                        <div class="flex flex-wrap gap-1">
+                            ${account.websites.split(' ').map(site => 
+                                `<span class="px-2 py-1 bg-purple-600/20 text-purple-300 rounded text-xs">${site}</span>`
+                            ).join('')}
+                        </div>
+                    </td>
+                    <td class="px-4 py-2 text-sm text-gray-400">${account.note || '-'}</td>
+                    <td class="px-4 py-2 space-x-2">
+                        <button class="editAccountBtn px-3 py-1 bg-blue-600 rounded text-white text-xs" data-idx="${idx}">Sửa</button>
+                        <button class="deleteAccountBtn px-3 py-1 bg-red-500 rounded text-white text-xs" data-idx="${idx}">Xóa</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        
+        document.querySelectorAll('.editAccountBtn').forEach(btn => btn.onclick = () => editAccount(btn.dataset.idx));
+        document.querySelectorAll('.deleteAccountBtn').forEach(btn => btn.onclick = () => deleteAccount(btn.dataset.idx));
+    }
+
+    function getFilteredAccounts() {
+        let filtered = [...accounts];
+
+        // Website filter
+        const websiteFilter = document.getElementById('accountWebsiteFilter').value;
+        if (websiteFilter) {
+            filtered = filtered.filter(acc => acc.websites.includes(websiteFilter));
+        }
+
+        // Points filter
+        const pointsFilter = document.getElementById('accountPointsFilter').value;
+        if (pointsFilter) {
+            const [min, max] = pointsFilter.split('-').map(Number);
+            if (max) {
+                filtered = filtered.filter(acc => acc.points >= min && acc.points <= max);
+            } else {
+                filtered = filtered.filter(acc => acc.points >= min);
+            }
+        }
+
+        // Search filter
+        const searchTerm = document.getElementById('accountSearchInput').value.toLowerCase();
+        if (searchTerm) {
+            filtered = filtered.filter(acc => 
+                acc.privateKey.toLowerCase().includes(searchTerm) ||
+                acc.proxy.toLowerCase().includes(searchTerm) ||
+                acc.websites.toLowerCase().includes(searchTerm) ||
+                acc.note.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        return filtered;
+    }
+    function renderUsers() {
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = users.map((u, idx) => `
+            <tr class="border-b border-white/10">
+                <td class="px-4 py-2 font-bold">${u.username}</td>
+                <td class="px-4 py-2">${u.email}</td>
+                <td class="px-4 py-2 text-green-400 font-bold">${formatCurrency(u.balance)}</td>
+                <td class="px-4 py-2">${u.role}</td>
+                <td class="px-4 py-2 space-x-2">
+                    <button class="editBtn px-3 py-1 bg-purple-600 rounded text-white" data-idx="${idx}">Sửa</button>
+                    <button class="deleteBtn px-3 py-1 bg-red-500 rounded text-white" data-idx="${idx}">Xóa</button>
+                </td>
+            </tr>
+        `).join('');
+        document.querySelectorAll('.editBtn').forEach(btn => btn.onclick = () => openEditModal(btn.dataset.idx));
+        document.querySelectorAll('.deleteBtn').forEach(btn => btn.onclick = () => deleteUser(btn.dataset.idx));
+    }
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    }
+    // Sửa user
+    let editingIdx = null;
+    function openEditModal(idx) {
+        editingIdx = idx;
+        const u = users[idx];
+        document.getElementById('editUsername').value = u.username;
+        document.getElementById('editEmail').value = u.email;
+        document.getElementById('editBalance').value = u.balance;
+        document.getElementById('editRole').value = u.role;
+        document.getElementById('editModal').classList.remove('hidden');
+    }
+    document.getElementById('closeEditModal').onclick = document.getElementById('closeEditModalX').onclick = function() {
+        document.getElementById('editModal').classList.add('hidden');
+    };
+    document.getElementById('editUserForm').onsubmit = function(e) {
+        e.preventDefault();
+        const username = document.getElementById('editUsername').value;
+        const email = document.getElementById('editEmail').value;
+        const balance = parseInt(document.getElementById('editBalance').value) || 0;
+        const role = document.getElementById('editRole').value;
+        fetch(`/api/users/${encodeURIComponent(username)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, balance, role })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                fetchUsers();
+                document.getElementById('editModal').classList.add('hidden');
+            } else {
+                alert(data.error || 'Lỗi khi cập nhật user!');
+            }
+        });
+    };
+    // Xóa user
+    function deleteUser(idx) {
+        const username = users[idx].username;
+        if (confirm('Bạn có chắc muốn xóa tài khoản này?')) {
+            fetch(`/api/users/${encodeURIComponent(username)}`, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) fetchUsers();
+                    else alert(data.error || 'Lỗi khi xóa user!');
+                });
+        }
+    }
+
+    // Quản lý đơn hàng
+    let orders = [];
+    function fetchOrders() {
+        fetch('/api/orders')
+            .then(res => res.json())
+            .then(data => {
+                orders = data;
+                renderOrders();
+            })
+            .catch(error => {
+                console.error('Error fetching orders:', error);
+                orders = [];
+                renderOrders();
+            });
+    }
+
+    function renderOrders() {
+        const tbody = document.getElementById('ordersTableBody');
+        if (orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-400">Chưa có đơn hàng nào</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = orders.map((order, idx) => {
+            const statusColors = {
+                'pending': 'bg-yellow-500',
+                'approved': 'bg-blue-500',
+                'rejected': 'bg-red-500',
+                'completed': 'bg-green-500'
+            };
+            const statusText = {
+                'pending': 'Chờ duyệt',
+                'approved': 'Đã duyệt',
+                'rejected': 'Từ chối',
+                'completed': 'Hoàn thành'
+            };
+            const createdAt = new Date(order.createdAt).toLocaleString('vi-VN');
+            
+            return `
+                <tr class="border-b border-white/10">
+                    <td class="px-4 py-2 text-sm">${createdAt}</td>
+                    <td class="px-4 py-2 font-bold">${order.userId}</td>
+                    <td class="px-4 py-2 font-bold text-blue-400">${order.selectedGame}</td>
+                    <td class="px-4 py-2">${order.gameUsername}</td>
+                    <td class="px-4 py-2">${order.phoneLast4}</td>
+                    <td class="px-4 py-2">${order.accountPoints} điểm (${order.accountWebsites})</td>
+                    <td class="px-4 py-2 text-green-400 font-bold">${formatCurrency(order.accountPrice)}</td>
+                    <td class="px-4 py-2">
+                        <span class="px-2 py-1 rounded text-xs text-white ${statusColors[order.status]}">${statusText[order.status]}</span>
+                        ${order.adminNote ? `<div class="text-xs text-gray-400 mt-1">${order.adminNote}</div>` : ''}
+                    </td>
+                    <td class="px-4 py-2 space-x-2">
+                        <button class="processOrderBtn px-3 py-1 bg-purple-600 rounded text-white text-xs" data-idx="${idx}">Xử lý</button>
+                        <button class="deleteOrderBtn px-3 py-1 bg-red-500 rounded text-white text-xs" data-idx="${idx}">Xóa</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        
+        document.querySelectorAll('.processOrderBtn').forEach(btn => btn.onclick = () => openOrderModal(btn.dataset.idx));
+        document.querySelectorAll('.deleteOrderBtn').forEach(btn => btn.onclick = () => deleteOrder(btn.dataset.idx));
+    }
+
+    // Xử lý đơn hàng
+    let editingOrderIdx = null;
+    function openOrderModal(idx) {
+        editingOrderIdx = idx;
+        const order = orders[idx];
+        
+        document.getElementById('orderDetails').innerHTML = `
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
+                <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-300">Người mua:</span>
+                    <span class="font-bold">${order.userId}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-300">Email:</span>
+                    <span>${order.userEmail}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-300">Game chọn:</span>
+                    <span class="font-bold">${order.selectedGame}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-300">Tên game:</span>
+                    <span class="font-bold">${order.gameUsername}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-300">SĐT (4 số cuối):</span>
+                    <span>${order.phoneLast4}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-300">Tài khoản:</span>
+                    <span class="font-bold">${order.accountPoints} điểm</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-300">Websites:</span>
+                    <span>${order.accountWebsites}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-300">Giá:</span>
+                    <span class="font-bold text-green-600">${formatCurrency(order.accountPrice)}</span>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('orderStatus').value = order.status;
+        document.getElementById('adminNote').value = order.adminNote || '';
+        document.getElementById('orderModal').classList.remove('hidden');
+    }
+
+    // Close order modal
+    document.getElementById('closeOrderModal').onclick = document.getElementById('closeOrderModalX').onclick = function() {
+        document.getElementById('orderModal').classList.add('hidden');
+    };
+
+    // Close reject modal
+    document.getElementById('closeRejectModal').onclick = document.getElementById('closeRejectModalX').onclick = function() {
+        document.getElementById('rejectOrderModal').classList.add('hidden');
+        document.getElementById('rejectReason').value = '';
+    };
+
+    // Reject order button
+    document.getElementById('rejectOrderBtn').onclick = function() {
+        document.getElementById('rejectOrderModal').classList.remove('hidden');
+    };
+
+    // Confirm reject order
+    document.getElementById('confirmRejectBtn').onclick = function() {
+        const rejectReason = document.getElementById('rejectReason').value.trim();
+        if (!rejectReason) {
+            alert('Vui lòng nhập lý do không duyệt!');
+            return;
+        }
+        
+        const order = orders[editingOrderIdx];
+        
+        // Khôi phục tài khoản về shop
+        fetch('/api/accounts/restore', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accountLine: order.accountLine })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Cập nhật trạng thái đơn hàng thành "rejected"
+                return fetch(`/api/orders/${order.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        status: 'rejected', 
+                        adminNote: `Lý do không duyệt: ${rejectReason}` 
+                    })
+                });
+            } else {
+                throw new Error('Lỗi khi khôi phục tài khoản');
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('Đã không duyệt đơn hàng thành công! Tài khoản đã được khôi phục về shop và tiền đã được hoàn lại cho khách hàng.');
+                document.getElementById('rejectOrderModal').classList.add('hidden');
+                document.getElementById('orderModal').classList.add('hidden');
+                document.getElementById('rejectReason').value = '';
+                fetchOrders();
+            } else {
+                throw new Error('Lỗi khi cập nhật đơn hàng');
+            }
+        })
+        .catch(error => {
+            alert(error.message || 'Lỗi khi xử lý không duyệt đơn hàng!');
+        });
+    };
+
+    // Update order
+    document.getElementById('orderActionForm').onsubmit = function(e) {
+        e.preventDefault();
+        const order = orders[editingOrderIdx];
+        const status = document.getElementById('orderStatus').value;
+        const adminNote = document.getElementById('adminNote').value;
+        
+        // Không cho phép từ chối qua form thông thường
+        if (status === 'rejected') {
+            alert('Vui lòng sử dụng nút "Không duyệt" để từ chối đơn hàng!');
+            return;
+        }
+        
+        // Cập nhật trạng thái đơn hàng bình thường
+        fetch(`/api/orders/${order.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status, adminNote })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                fetchOrders();
+                document.getElementById('orderModal').classList.add('hidden');
+            } else {
+                alert(data.error || 'Lỗi khi cập nhật đơn hàng!');
+            }
+        });
+    };
+
+    // Delete order
+    function deleteOrder(idx) {
+        const order = orders[idx];
+        if (confirm('Bạn có chắc muốn xóa đơn hàng này?')) {
+            fetch(`/api/orders/${order.id}`, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) fetchOrders();
+                    else alert(data.error || 'Lỗi khi xóa đơn hàng!');
+                });
+        }
+    }
+
+    // Event listeners cho quản lý tài khoản
+    document.getElementById('refreshAccountsBtn').onclick = fetchAccounts;
+    document.getElementById('uploadAccountsBtn').onclick = function() {
+        document.getElementById('uploadAccountsModal').classList.remove('hidden');
+    };
+    document.getElementById('filterAccountsBtn').onclick = renderAccounts;
+    document.getElementById('closeUploadModal').onclick = document.getElementById('closeUploadModalX').onclick = function() {
+        document.getElementById('uploadAccountsModal').classList.add('hidden');
+    };
+
+    // Upload tài khoản
+    document.getElementById('uploadAccountsSubmit').onclick = function() {
+        const file = document.getElementById('accountsFile').files[0];
+        const content = document.getElementById('accountsContent').value.trim();
+        
+        if (!file && !content) {
+            alert('Vui lòng chọn file hoặc nhập nội dung!');
+            return;
+        }
+        
+        let accountsData = '';
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                accountsData = e.target.result;
+                uploadAccountsToServer(accountsData);
+            };
+            reader.readAsText(file);
+        } else {
+            accountsData = content;
+            uploadAccountsToServer(accountsData);
+        }
+    };
+
+    function uploadAccountsToServer(accountsData) {
+        fetch('/api/upload-accounts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accounts: accountsData })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('Upload tài khoản thành công!');
+                document.getElementById('uploadAccountsModal').classList.add('hidden');
+                document.getElementById('accountsFile').value = '';
+                document.getElementById('accountsContent').value = '';
+                fetchAccounts();
+            } else {
+                alert(data.error || 'Lỗi khi upload tài khoản!');
+            }
+        })
+        .catch(error => {
+            console.error('Upload error:', error);
+            alert('Lỗi kết nối server!');
+        });
+    }
+
+    // Xóa tài khoản
+    function deleteAccount(idx) {
+        const account = accounts[idx];
+        if (confirm('Bạn có chắc muốn xóa tài khoản này?')) {
+            fetch('/api/accounts/hide', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accountLine: account.accountLine })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    fetchAccounts();
+                } else {
+                    alert(data.error || 'Lỗi khi xóa tài khoản!');
+                }
+            })
+            .catch(error => {
+                console.error('Delete account error:', error);
+                alert('Lỗi kết nối server!');
+            });
+        }
+    }
+
+    // Sửa tài khoản (placeholder - có thể mở rộng sau)
+    function editAccount(idx) {
+        const account = accounts[idx];
+        alert('Chức năng sửa tài khoản sẽ được phát triển sau!');
+        // TODO: Implement edit account functionality
+    }
+    </script>
+</body>
+</html> 
