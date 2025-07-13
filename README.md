@@ -113,4 +113,4 @@ npm start
 Nếu gặp vấn đề khi deploy, hãy kiểm tra:
 - Logs trong dashboard của platform
 - Đảm bảo tất cả file được commit lên Git
-- Kiểm tra port và environment variables 
+- Kiểm tra port và environment variables
