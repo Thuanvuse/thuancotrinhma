@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "username": "tienthuanjqk",
+    "password": "$2a$12$tuCE11Iv5bVHZ8qkgezSROZf2e4WwNelCJV25YGrYGaGstPL1dtbi",
+    "email": "admin@example.com",
+    "role": "admin",
+    "balance": 100000,
+    "createdAt": "2025-07-14T06:33:25.117Z"
+  },
+  {
+    "username": "thuan123",
+    "password": "$2a$12$.OMrcJe0LHwmz6G71EcnKe4yeHmEhX740DoV2h06DygI/PrZhnIiu",
+    "email": "2OWHaNDYt9LFr966qYnH8S0tZrNaRnL/0xdzgmGXGJm1KR9xVOFHj88gSZnWBs+fx4VpF185rvBOY6U4IzRHGB6l0ICXq0f46dassm1reR+syiSa88bt4y8DsF44RpZMlzzwVaJ9016JXLje9uOFqjyORMk2Dg==",
+    "role": "user",
+    "balance": 0,
+    "createdAt": "2025-07-14T06:36:06.098Z"
+  },
+  {
+    "username": "thuanad",
+    "password": "$2a$12$PAnFvfdV2/cGT5dmzXiPgeshcB3lW.h0DFrhp16aMxwXY7nlkTHWu",
+    "email": "DZ7vtfvd1O1L8nYiuRqGVoqcy8kklfZPiAWA9vgHKrew+QdeRGKYEAV1XxW8htvpNhpFyFwHU5UwyfLOY8Yudh10fzpYrFsn+nFEU20Tp7ludqJ0eFssB/I4eLox/qC/H6HzswZI5tzfXyPWl2iAqw387A==",
+    "role": "admin",
+    "balance": 0,
+    "createdAt": "2025-07-14T07:13:00.097Z"
+  },
+  {
+    "username": "tho123",
+    "password": "$2a$12$rpIVfTeiXLvzxSbMDZ2HMO6aONxazOdwO9Ry5ODiNouHAd7/mnMwa",
+    "email": "gTLZ4sRbHEEJOWht9bpLEgXyQXm2/4/MUiySIkigk1K1jxgn65aovIo4e0Wz/E2DJ1VJmxhpjI8o9RsnSKCYDSXS/FImsy0nVE/DLESydULHaGtQcmK1BtzM1DFKKqNJXoNpzSt26/7ofHJ8zeY=",
+    "role": "user",
+    "balance": 9869999,
+    "createdAt": "2025-07-14T07:45:48.140Z"
+  },
+  {
+    "username": "gamegame",
+    "password": "$2a$12$4BSxE66AhQoX8uE/VqjWxu4SH.iBa0I5Q8KIj6/mADG9kAzxraJeO",
+    "email": "7pZ8mZyySWYP9KTF32jfi4dESWKFy2k63fsueNc4MGD28n7nimYIbOH0V1E5lkncidEJo8bk3L3kxBfzTQqG1AAio5vwEwtqxdPegYdhdklr1MTahzTjb9/rgmK4mWpplXGb8TJoGstwz+melneWCCSq",
+    "role": "user",
+    "balance": 0,
+    "createdAt": "2025-07-14T09:30:18.238Z"
+  },
+  {
+    "username": "hoangchamcham",
+    "password": "$2a$12$Sa6OCOmEu2Sgo0VVsHKsv.kYy4LH7tYMu6VO0PwdY5jRFU/9C.Nwe",
+    "email": "Yl8XMa3I7s7Bi+wyJ02cUp0Mvi1UQaSE0Fussxhn28KJGjAW2lllp3kkAEMXiAMLK6MkuWnaY8YC624o+a/RV0fXdryMVj59JOVnvlKWoRfLVzTA49JLQHXlmuCmRURc1IIfsMBSvqYaLa7Zm4eqvyS17PPe5RU=",
+    "role": "user",
+    "balance": 0,
+    "createdAt": "2025-07-14T09:52:21.685Z"
+  }
+]

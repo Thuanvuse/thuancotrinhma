@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OKVIP SHOP - Hệ thống Điểm Game</title>
     <meta name="description" content="F168 • 78WIN • QQ88 • MB66 - Giao dịch nhanh chóng, bảo mật">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
+    <!-- Ưu tiên dùng local, nếu không có sẽ dùng CDN -->
+    <link rel="stylesheet" href="tailwind.min.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css'">
+    <!-- Nếu không dùng CDN, hãy comment hoặc xóa tailwind.config -->
+    <!-- <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -40,7 +42,7 @@
                 }
             }
         }
-    </script>
+    </script> -->
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -68,28 +70,146 @@
             position: relative;
             z-index: 1;
         }
+        @media (max-width: 640px) {
+            nav .flex.items-center.space-x-4, nav .flex.flex-col.sm\:flex-row.items-center.space-y-2.sm\:space-y-0.sm\:space-x-4 { flex-direction: row; gap: 0.5rem; justify-content: center; }
+            nav h1 { font-size: 1.1rem; text-align: center; width: 100%; }
+            .glass-effect, .max-w-7xl, .max-w-4xl, .max-w-md { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+            .card-hover { padding: 0.75rem !important; }
+            .glass-effect { border-radius: 1rem !important; }
+            .modal, .fixed.inset-0 { padding: 0 !important; }
+            .modal .p-8, .modal .p-4 { padding: 1rem !important; }
+            .modal input, .modal select, .modal button { font-size: 1.1rem !important; padding: 0.75rem 1rem !important; }
+            .modal label { font-size: 1rem !important; }
+            .modal h2, .modal h3 { font-size: 1.2rem !important; }
+            .modal .rounded-2xl { border-radius: 1.5rem !important; }
+            .modal .max-w-md, .modal .max-w-4xl { max-width: 95vw !important; width: 95vw !important; }
+            .modal { min-height: 80vh !important; max-height: 90vh !important; }
+            .overflow-x-auto { overflow-x: auto !important; }
+            table { font-size: 0.9rem !important; }
+            th, td { padding: 0.5rem !important; }
+            .flex.items-center.space-x-6 { flex-direction: column; gap: 0.5rem; }
+            .flex.items-center.justify-between { flex-direction: column; gap: 0.5rem; }
+            .flex.items-center.space-x-3 { gap: 0.5rem; }
+            .flex.flex-wrap.gap-2.justify-end { justify-content: flex-start !important; }
+            .w-10.h-10 { width: 2.5rem !important; height: 2.5rem !important; }
+            .text-3xl, .text-2xl { font-size: 1.2rem !important; }
+            .text-lg { font-size: 1.05rem !important; }
+            .py-8, .py-6, .py-4 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+            .px-4, .px-6, .px-8 { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+            #accountsList { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+            .glass-effect.card-hover { min-width: 0; }
+            .buy-account-btn { width: 100%; font-size: 1.1rem; padding: 0.75rem 0; margin-top: 0.5rem; }
+            .fab-btn { position: fixed; right: 1.2rem; bottom: 1.2rem; z-index: 50; border-radius: 50%; width: 3.5rem; height: 3.5rem; font-size: 1.7rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2); background: linear-gradient(135deg, #9333ea, #db2777); color: #fff; display: flex; align-items: center; justify-content: center; }
+            .fab-btn:active { background: linear-gradient(135deg, #7c3aed, #be185d); }
+            
+            /* Mobile menu styles */
+            .mobile-menu-hidden { display: none !important; }
+            .mobile-user-menu { position: relative; }
+            .mobile-user-menu .user-menu-dropdown { 
+                position: absolute; 
+                top: 100%; 
+                right: 0; 
+                background: rgba(0, 0, 0, 0.9); 
+                backdrop-filter: blur(10px); 
+                border: 1px solid rgba(255, 255, 255, 0.2); 
+                border-radius: 1rem; 
+                padding: 0.5rem; 
+                min-width: 200px; 
+                z-index: 1000; 
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); 
+            }
+            .mobile-user-menu .user-menu-dropdown button { 
+                width: 100%; 
+                text-align: left; 
+                padding: 0.75rem 1rem; 
+                border-radius: 0.5rem; 
+                margin-bottom: 0.25rem; 
+                font-size: 0.9rem; 
+                transition: all 0.2s; 
+            }
+            .mobile-user-menu .user-menu-dropdown button:hover { 
+                background: rgba(255, 255, 255, 0.1); 
+            }
+            .mobile-user-menu .user-menu-dropdown .user-info { 
+                padding: 0.75rem 1rem; 
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2); 
+                margin-bottom: 0.5rem; 
+            }
+            .mobile-user-menu .user-menu-dropdown .user-info .balance { 
+                font-size: 1.1rem; 
+                font-weight: bold; 
+                color: #4ade80; 
+            }
+        }
+        .custom-notification {
+            position: fixed;
+            top: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 320px;
+            max-width: 90vw;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+            animation: fadeInDown 0.3s;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-40px) translateX(-50%); }
+            to { opacity: 1; transform: translateY(0) translateX(-50%); }
+        }
+        .custom-notification.success { background: #22c55e; color: #fff; }
+        .custom-notification.error { background: #ef4444; color: #fff; }
+        .custom-notification.info { background: #6366f1; color: #fff; }
+        .custom-notification .close-btn {
+            margin-left: 1rem;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.3rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .custom-notification .close-btn:hover { opacity: 1; }
+        .custom-notification .icon {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        /* Đảm bảo nút đóng modal đăng nhập ở góc trên phải */
+        #closeAuthModal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-purple-900 via-pink-900 to-purple-800 min-h-screen text-white">
     <!-- Navigation -->
     <nav class="glass-effect border-b border-white/20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-4">
-                    <img src="https://okvipau.com/_nuxt/img/logo.2889c23.png" alt="OKVIP SHOP" class="h-10 w-auto">
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <div class="flex flex-row justify-between items-center h-auto sm:h-16 gap-2 sm:gap-0">
+                <div class="flex flex-row items-center space-x-2 w-full sm:w-auto justify-center">
+                    <img src="logoshop.png" alt="OKVIP SHOP" class="h-10 w-auto">
+                    <h1 class="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                         OKVIP SHOP
                     </h1>
                 </div>
-                <div class="flex items-center space-x-4">
+                <div class="flex flex-row items-center space-x-2 w-full sm:w-auto justify-end">
                     <button id="themeToggle" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
                     </button>
                     
-                    <!-- User Info Section -->
-                    <div id="userInfo" class="hidden">
+                    <!-- Desktop User Info Section -->
+                    <div id="userInfo" class="hidden sm:flex">
                         <div class="flex items-center space-x-4">
                             <!-- Balance -->
                             <div class="text-right">
@@ -109,7 +229,6 @@
                                 </div>
                                 <div class="text-right">
                                     <div class="text-lg font-bold text-white" id="userName">User</div>
-                                    <div class="text-sm text-gray-400" id="userEmail">user@example.com</div>
                                 </div>
                             </div>
                             <!-- Logout Button luôn hiển thị -->
@@ -119,15 +238,39 @@
                         </div>
                     </div>
                     
+                    <!-- Mobile User Menu -->
+                    <div id="mobileUserMenu" class="flex sm:hidden mobile-user-menu">
+                        <button id="mobileUserToggle" class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </button>
+                        <div id="mobileUserDropdown" class="user-menu-dropdown hidden">
+                            <div class="user-info">
+                                <div class="text-sm text-gray-300">Số dư</div>
+                                <div class="balance" id="mobileUserBalance">0 VND</div>
+                            </div>
+                            <button id="mobileDepositBtn" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 font-medium">
+                                💰 Nạp tiền
+                            </button>
+                            <button id="mobileHistoryBtn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-medium">
+                                📋 Lịch sử mua
+                            </button>
+                            <button id="mobileLogoutBtn" class="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-300 font-medium">
+                                🚪 Đăng xuất
+                            </button>
+                        </div>
+                    </div>
+                    
                     <!-- Login Button (hiển thị khi chưa đăng nhập) -->
-                    <div id="loginButton" class="hidden">
+                    <div id="loginButton" class="hidden sm:block">
                         <button id="showLoginBtn" class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-medium">
                             Đăng nhập
                         </button>
                     </div>
                     
-                    <!-- History Button (hiển thị khi đã đăng nhập) -->
-                    <div id="historyButton" class="hidden">
+                    <!-- History Button (hiển thị khi đã đăng nhập) - Desktop only -->
+                    <div id="historyButton" class="hidden sm:block">
                         <button id="showHistoryBtn" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-medium">
                             Lịch sử mua
                         </button>
@@ -148,11 +291,11 @@
     </nav>
 
     <!-- Login/Register Modal -->
-    <div id="authModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-8">
+    <div id="authModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden modal">
+        <div class="flex items-center justify-center min-h-screen p-2 sm:p-4">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-full sm:max-w-4xl w-full p-2 sm:p-8">
                 <div class="text-center mb-8">
-                    <img src="https://okvipau.com/_nuxt/img/logo.2889c23.png" alt="OKVIP SHOP" class="h-12 w-auto mx-auto mb-4">
+                    <img src="logoshop.png" alt="OKVIP SHOP" class="h-12 w-auto mx-auto mb-4">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">OKVIP SHOP</h2>
                     <p class="text-gray-600 dark:text-gray-400">Đăng nhập để tiếp tục</p>
                 </div>
@@ -211,9 +354,9 @@
     </div>
 
     <!-- Buy Account Modal -->
-    <div id="buyAccountModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-8">
+    <div id="buyAccountModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden modal">
+        <div class="flex items-center justify-center min-h-screen p-2 sm:p-4">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-full sm:max-w-4xl w-full p-2 sm:p-8">
                 <div class="text-center mb-8">
                     <div class="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,7 +368,7 @@
                 </div>
                 
                 <form id="buyAccountForm" class="space-y-6">
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+                    <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-gray-700 dark:text-gray-300">Tài khoản:</span>
                             <span class="text-lg font-bold text-purple-600 dark:text-purple-400" id="buyAccountPoints">0 điểm</span>
@@ -283,39 +426,43 @@
     </div>
 
     <!-- History Modal -->
-    <div id="historyModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full p-8">
+    <div id="historyModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden modal">
+        <div class="flex items-center justify-center min-h-screen p-2 sm:p-4">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-full sm:max-w-4xl w-full p-2 sm:p-8 relative">
                 <div class="text-center mb-8">
                     <div class="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                         </svg>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Lịch sử mua hàng</h2>
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Lịch sử mua hàng</h2>
                     <p class="text-gray-600 dark:text-gray-400">Xem lại các đơn hàng đã mua</p>
                 </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm text-left">
-                        <thead>
-                            <tr class="bg-purple-800/40">
-                                <th class="px-4 py-2">Thời gian</th>
-                                <th class="px-4 py-2">Game chọn</th>
-                                <th class="px-4 py-2">Tên game</th>
-                                <th class="px-4 py-2">Tên người mua</th>
-                                <th class="px-4 py-2">Giá</th>
-                                <th class="px-4 py-2">Trạng thái</th>
-                                <th class="px-4 py-2">Ghi chú</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historyTableBody" class="bg-white/5">
-                            <!-- History rows sẽ được render ở đây -->
-                        </tbody>
-                    </table>
+                <div class="space-y-3">
+                    <div id="historyTableBodyMobile" class="sm:hidden">
+                        <!-- Lịch sử mobile sẽ render ở đây -->
+                    </div>
+                    <div class="overflow-x-auto overflow-y-auto max-h-[60vh] hidden sm:block">
+                        <table class="min-w-full text-sm text-left">
+                            <thead>
+                                <tr class="bg-purple-800/40">
+                                    <th class="px-4 py-2 text-gray-800 dark:text-gray-200">Thời gian</th>
+                                    <th class="px-4 py-2 text-gray-800 dark:text-gray-200">Game chọn</th>
+                                    <th class="px-4 py-2 text-gray-800 dark:text-gray-200">Tên game</th>
+                                    <th class="px-4 py-2 text-gray-800 dark:text-gray-200">Tên người mua</th>
+                                    <th class="px-4 py-2 text-gray-800 dark:text-gray-200">User ACC</th>
+                                    <th class="px-4 py-2 text-gray-800 dark:text-gray-200">Giá</th>
+                                    <th class="px-4 py-2 text-gray-800 dark:text-gray-200">Trạng thái</th>
+                                    <th class="px-4 py-2 text-gray-800 dark:text-gray-200">Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody" class="bg-white/5">
+                                <!-- History rows sẽ được render ở đây -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-
-                <button id="closeHistoryModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <button id="closeHistoryModal" class="absolute top-4 right-4 z-10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -325,9 +472,9 @@
     </div>
 
     <!-- Deposit Modal -->
-    <div id="depositModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-8">
+    <div id="depositModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden modal">
+        <div class="flex items-center justify-center min-h-screen p-2 sm:p-4">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-full sm:max-w-4xl w-full p-2 sm:p-8">
                 <div class="text-center mb-8">
                     <div class="w-16 h-16 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -411,52 +558,50 @@
         </div>
 
         <!-- Filters Section -->
-        <div class="glass-effect rounded-2xl p-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Website</label>
-                    <select id="websiteFilter" class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500">
-                        <option value="">Tất cả</option>
-                        <option value="OK9">OK9</option>
-                        <option value="78win">78win</option>
-                        <option value="F168">F168</option>
-                        <option value="MB66">MB66</option>
-                        <option value="QQ88">QQ88</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Khoảng giá</label>
-                    <select id="priceFilter" class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500">
-                        <option value="">Tất cả</option>
-                        <option value="0-50">0 - 50 điểm</option>
-                        <option value="51-100">51 - 100 điểm</option>
-                        <option value="101-200">101 - 200 điểm</option>
-                        <option value="200+">200+ điểm</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Tìm kiếm</label>
-                    <input type="text" id="searchInput" placeholder="Tìm kiếm..." class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500">
-                </div>
-                <div class="flex items-end">
-                    <button id="refreshBtn" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-medium">
-                        Làm mới
-                    </button>
-                </div>
+        <div class="glass-effect rounded-2xl p-3 sm:p-6 mb-8 overflow-x-auto">
+            <div class="flex flex-row gap-2 overflow-x-auto pb-2">
+                <select id="websiteFilter" class="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 min-w-[110px]">
+                    <option value="">Tất cả</option>
+                    <option value="OK9">OK9</option>
+                    <option value="78win">78win</option>
+                    <option value="F168">F168</option>
+                    <option value="MB66">MB66</option>
+                    <option value="QQ88">QQ88</option>
+                </select>
+                <select id="priceFilter" class="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 min-w-[110px]">
+                    <option value="">Tất cả</option>
+                    <option value="0-50">0 - 50 điểm</option>
+                    <option value="51-100">51 - 100 điểm</option>
+                    <option value="101-200">101 - 200 điểm</option>
+                    <option value="200+">200+ điểm</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Tìm kiếm..." class="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 min-w-[120px]">
+                <button id="refreshBtn" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 font-medium min-w-[90px]">Làm mới</button>
             </div>
         </div>
 
         <!-- Accounts List -->
-        <div id="accountsList" class="space-y-4">
+        <div id="accountsList" class="space-y-4 sm:space-y-4">
             <!-- Accounts will be loaded here -->
         </div>
     </div>
+
+    <!-- Floating Action Button (FAB) cho lịch sử -->
+    <button id="fabHistory" class="fab-btn sm:hidden" title="Lịch sử mua">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h3m4 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    </button>
+    <script>
+        document.getElementById('fabHistory').onclick = function() {
+            document.getElementById('showHistoryBtn').click();
+        };
+    </script>
 
     <script>
         // Global variables
         let accounts = [];
         let isAdminMode = false;
         let currentUser = null;
+        let isProcessingPurchase = false; // Flag to prevent spam buying
 
         // Users sẽ được load từ API /api/users
         let users = [];
@@ -486,6 +631,13 @@
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', async function() {
+            // Theme: always default to light unless user chose dark
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
             setupEventListeners();
             await loadAccounts();
             checkAuthStatus();
@@ -524,7 +676,16 @@
             depositForm.addEventListener('submit', handleDeposit);
             
             // Buy account modal events
-            closeBuyAccountModal.addEventListener('click', () => buyAccountModal.classList.add('hidden'));
+            closeBuyAccountModal.addEventListener('click', () => {
+                buyAccountModal.classList.add('hidden');
+                // Reset button state when modal is closed
+                if (currentBuyingAccount && currentBuyingAccount.button) {
+                    currentBuyingAccount.button.disabled = false;
+                    currentBuyingAccount.button.textContent = 'Mua ngay';
+                    currentBuyingAccount.button.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+                isProcessingPurchase = false;
+            });
             buyAccountForm.addEventListener('submit', handleBuyAccountSubmit);
             
             // History modal events
@@ -567,6 +728,47 @@
             document.getElementById('showLoginBtn').addEventListener('click', () => {
                 authModal.classList.remove('hidden');
             });
+
+            // Mobile menu events
+            const mobileUserToggle = document.getElementById('mobileUserToggle');
+            const mobileUserDropdown = document.getElementById('mobileUserDropdown');
+            const mobileDepositBtn = document.getElementById('mobileDepositBtn');
+            const mobileHistoryBtn = document.getElementById('mobileHistoryBtn');
+            const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+
+            if (mobileUserToggle) {
+                mobileUserToggle.addEventListener('click', () => {
+                    mobileUserDropdown.classList.toggle('hidden');
+                });
+            }
+
+            if (mobileDepositBtn) {
+                mobileDepositBtn.addEventListener('click', () => {
+                    depositModal.classList.remove('hidden');
+                    mobileUserDropdown.classList.add('hidden');
+                });
+            }
+
+            if (mobileHistoryBtn) {
+                mobileHistoryBtn.addEventListener('click', () => {
+                    showUserHistory();
+                    mobileUserDropdown.classList.add('hidden');
+                });
+            }
+
+            if (mobileLogoutBtn) {
+                mobileLogoutBtn.addEventListener('click', () => {
+                    handleLogout();
+                    mobileUserDropdown.classList.add('hidden');
+                });
+            }
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (mobileUserDropdown && !mobileUserDropdown.contains(e.target) && !mobileUserToggle.contains(e.target)) {
+                    mobileUserDropdown.classList.add('hidden');
+                }
+            });
         }
 
         function toggleAuthForms() {
@@ -604,6 +806,8 @@
                 if (data.success) {
                     currentUser = data.user;
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    // Lưu token vào localStorage để fetch API dùng
+                    localStorage.setItem('token', data.token);
                     authModal.classList.add('hidden');
                     updateUI();
                     showNotification('Đăng nhập thành công!', 'success');
@@ -623,39 +827,34 @@
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            
             if (password !== confirmPassword) {
                 showNotification('Mật khẩu xác nhận không khớp!', 'error');
                 return;
             }
-            
-            // Đăng ký user mới: kiểm tra username trùng bằng cách gọi /api/admin/users nếu là admin, hoặc bỏ qua kiểm tra nếu là user thường
-            // Vì hiện tại không có API /api/admin/users, nên chỉ kiểm tra username trùng trong localStorage
-            if (users.find(u => u.username === username)) {
-                showNotification('Tên đăng nhập đã tồn tại!', 'error');
-                return;
-            }
-            
-            console.log('Registering user:', { username, email, password });
-            
-            // Lưu vào server trước
+            // Mã hóa payload bằng base64
+            const payload = btoa(JSON.stringify({ username, email, password }));
             fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password })
+                body: JSON.stringify({ payload })
             })
-            .then(res => {
-                console.log('Register API response status:', res.status);
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
-                console.log('Register API response:', data);
                 if (data.success) {
                     // Thêm user mới vào danh sách sau khi server thành công
                     const newUser = { username, email, password, role: 'user', balance: 0 };
                     users.push(newUser);
                     showNotification('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
                     toggleAuthForms();
+                } else if (data.errors && Array.isArray(data.errors)) {
+                    // Kiểm tra lỗi password không đủ mạnh
+                    const pwdErr = data.errors.find(e => e.path === 'password' && e.msg.includes('Password must contain'));
+                    if (pwdErr) {
+                        showNotification('Mật khẩu phải có chữ hoa, chữ thường, số và ký tự đặc biệt!', 'error');
+                        return;
+                    }
+                    // Hiển thị lỗi đầu tiên nếu có
+                    showNotification(data.errors[0].msg || 'Lỗi khi đăng ký!', 'error');
                 } else {
                     showNotification(data.error || 'Lỗi khi đăng ký!', 'error');
                 }
@@ -694,6 +893,7 @@
                 userInfo.classList.remove('hidden');
                 document.getElementById('loginButton').classList.add('hidden');
                 document.getElementById('historyButton').classList.remove('hidden');
+                document.getElementById('mobileUserMenu').classList.remove('hidden');
                 adminToggle.classList.remove('hidden');
                 adminToggle.style.display = currentUser.role === 'admin' ? 'block' : 'none';
                 
@@ -716,8 +916,8 @@
                 }
                 
                 document.getElementById('userName').textContent = currentUser.username;
-                document.getElementById('userEmail').textContent = currentUser.email;
                 document.getElementById('userBalance').textContent = formatCurrency(currentUser.balance || 0);
+                document.getElementById('mobileUserBalance').textContent = formatCurrency(currentUser.balance || 0);
                 document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
                 // Gán lại sự kiện logout mỗi lần update
                 var logoutBtnEl = document.getElementById('logoutBtn');
@@ -726,6 +926,7 @@
                 userInfo.classList.add('hidden');
                 document.getElementById('loginButton').classList.remove('hidden');
                 document.getElementById('historyButton').classList.add('hidden');
+                document.getElementById('mobileUserMenu').classList.add('hidden');
                 adminToggle.classList.add('hidden');
                 const adminLink = document.getElementById('adminLink');
                 if (adminLink) {
@@ -745,34 +946,44 @@
         }
 
         function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
         }
 
         async function loadAccounts() {
             try {
                 console.log('Loading accounts from API...');
-                const response = await fetch('/api/accounts');
+                const response = await fetchWithAuth('/api/accounts');
                 console.log('API Response status:', response.status);
-                
+                if (response.status === 401 || response.status === 403) {
+                    showNotification('Vui lòng đăng nhập để xem tài khoản!', 'error');
+                    return;
+                }
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-                
                 const result = await response.json();
                 console.log('API Response data:', result);
-                
+                if (result.error && (result.error === 'Authentication required' || result.error === 'Invalid or expired token')) {
+                    showNotification('Vui lòng đăng nhập để xem tài khoản!', 'error');
+                    return;
+                }
                 if (result.error) {
                     throw new Error(result.error);
                 }
-                
-                // Đảm bảo chỉ sử dụng id, points, username (đã mask), websites từ API /api/accounts
                 accounts = result.accounts || [];
                 console.log('Parsed accounts count:', accounts.length);
                 updateStats();
                 renderAccounts();
             } catch (error) {
                 console.error('Error loading accounts:', error);
-                showNotification('Không thể tải dữ liệu tài khoản!', 'error');
+                showNotification('Vui lòng đăng nhập để xem tài khoản!', 'error');
             }
         }
 
@@ -878,18 +1089,23 @@
         }
 
         function showNotification(message, type = 'info') {
+            // Xóa thông báo cũ nếu có
+            document.querySelectorAll('.custom-notification').forEach(el => el.remove());
+            // Icon theo loại
+            let icon = '';
+            if (type === 'success') icon = '<span class="icon">✅</span>';
+            else if (type === 'error') icon = '<span class="icon">❌</span>';
+            else icon = '<span class="icon">ℹ️</span>';
+            // Tạo thông báo
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${
-                type === 'success' ? 'bg-green-600' : 
-                type === 'error' ? 'bg-red-600' : 'bg-blue-600'
-            }`;
-            notification.textContent = message;
-            
+            notification.className = `custom-notification ${type}`;
+            notification.innerHTML = `${icon}<span>${message}</span><button class="close-btn" title="Đóng">&times;</button>`;
+            // Nút đóng
+            notification.querySelector('.close-btn').onclick = () => notification.remove();
             document.body.appendChild(notification);
-            
             setTimeout(() => {
-                notification.remove();
-            }, 3000);
+                if (notification.parentNode) notification.remove();
+            }, 4000);
         }
 
         function formatCurrency(amount) {
@@ -897,6 +1113,13 @@
                 style: 'currency',
                 currency: 'VND'
             }).format(amount);
+        }
+
+        function maskUsername(username) {
+            if (!username || username.length <= 3) {
+                return username + '*****';
+            }
+            return username.substring(0, 3) + '*****';
         }
 
         function handleLogout() {
@@ -913,14 +1136,17 @@
                 return;
             }
             
-            fetch(`/api/orders/user/${currentUser.username}`)
+            fetchWithAuth('/api/orders')
                 .then(response => response.json())
                 .then(orders => {
                     const tbody = document.getElementById('historyTableBody');
+                    const mobileBody = document.getElementById('historyTableBodyMobile');
                     tbody.innerHTML = '';
+                    mobileBody.innerHTML = '';
                     
                     if (orders.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center text-gray-500">Chưa có đơn hàng nào</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-4 text-center text-gray-500">Chưa có đơn hàng nào</td></tr>';
+                        mobileBody.innerHTML = '<div class="text-center text-gray-500 py-4">Chưa có đơn hàng nào</div>';
                     } else {
                         orders.forEach(order => {
                             const row = document.createElement('tr');
@@ -929,16 +1155,62 @@
                             const statusClass = getStatusClass(order.status);
                             const statusText = getStatusText(order.status);
                             
+                            // Tìm tài khoản để lấy username
+                            const account = accounts.find(acc => acc.id === order.accountId);
+                            const maskedUsername = account ? maskUsername(account.username) : 'N/A';
+                            
                             row.innerHTML = `
-                                <td class="px-4 py-2">${new Date(order.timestamp || order.createdAt).toLocaleString('vi-VN')}</td>
-                                <td class="px-4 py-2">${order.selectedGame || 'N/A'}</td>
-                                <td class="px-4 py-2">${order.gameUsername || 'N/A'}</td>
-                                <td class="px-4 py-2">${order.gameUsername || 'N/A'}</td>
-                                <td class="px-4 py-2">${formatCurrency(order.accountPrice || order.price)}</td>
-                                <td class="px-4 py-2"><span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">${statusText}</span></td>
-                                <td class="px-4 py-2">${order.adminNote || '-'}</td>
+                                <td class="px-4 py-2 text-gray-800 dark:text-gray-200">${new Date(order.timestamp || order.createdAt).toLocaleString('vi-VN')}</td>
+                                <td class="px-4 py-2 text-gray-800 dark:text-gray-200">${order.selectedGame || 'N/A'}</td>
+                                <td class="px-4 py-2 text-gray-800 dark:text-gray-200">${order.gameUsername || 'N/A'}</td>
+                                <td class="px-4 py-2 text-gray-800 dark:text-gray-200">${order.gameUsername || 'N/A'}</td>
+                                <td class="px-4 py-2 text-gray-800 dark:text-gray-200">${maskedUsername}</td>
+                                <td class="px-4 py-2 text-gray-800 dark:text-gray-200">${formatCurrency(order.accountPrice || order.price)}</td>
+                                <td class="px-4 py-2"><span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass} text-gray-800 dark:text-gray-200">${statusText}</span></td>
+                                <td class="px-4 py-2 text-gray-800 dark:text-gray-200">${renderNoteWithExpand(order.adminNote)}</td>
                             `;
                             tbody.appendChild(row);
+                            
+                            // Mobile view
+                            const mobileCard = document.createElement('div');
+                            mobileCard.className = 'bg-white/5 rounded-lg p-4 mb-3 border border-white/10';
+                            mobileCard.innerHTML = `
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-400">Thời gian:</span>
+                                        <span class="text-sm">${new Date(order.timestamp || order.createdAt).toLocaleString('vi-VN')}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-400">Game chọn:</span>
+                                        <span class="text-sm">${order.selectedGame || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-400">Tên game:</span>
+                                        <span class="text-sm">${order.gameUsername || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-400">Tên người mua:</span>
+                                        <span class="text-sm">${order.gameUsername || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-400">User ACC:</span>
+                                        <span class="text-sm">${maskedUsername}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-400">Giá:</span>
+                                        <span class="text-sm font-medium">${formatCurrency(order.accountPrice || order.price)}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-400">Trạng thái:</span>
+                                        <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass} text-gray-800 dark:text-gray-200">${statusText}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-400">Ghi chú:</span>
+                                        <span class="text-sm">${renderNoteWithExpand(order.adminNote)}</span>
+                                    </div>
+                                </div>
+                            `;
+                            mobileBody.appendChild(mobileCard);
                         });
                     }
                     
@@ -1063,6 +1335,12 @@
                 return;
             }
             
+            // Kiểm tra nếu đang xử lý mua hàng
+            if (isProcessingPurchase) {
+                showNotification('Đang xử lý đơn hàng trước đó, vui lòng chờ!', 'error');
+                return;
+            }
+            
             const points = parseInt(button.dataset.points);
             const price = parseInt(button.dataset.price);
             const websites = button.dataset.websites;
@@ -1072,6 +1350,11 @@
                 showNotification(`Số dư không đủ! Cần ${formatCurrency(price)} nhưng chỉ có ${formatCurrency(currentUser.balance)}`, 'error');
                 return;
             }
+            
+            // Vô hiệu hóa nút mua ngay lập tức
+            button.disabled = true;
+            button.textContent = 'Đang xử lý...';
+            button.classList.add('opacity-50', 'cursor-not-allowed');
             
             // Lưu thông tin tài khoản đang mua
             currentBuyingAccount = {
@@ -1113,6 +1396,12 @@
         function handleBuyAccountSubmit(e) {
             e.preventDefault();
             
+            // Kiểm tra nếu đang xử lý mua hàng
+            if (isProcessingPurchase) {
+                showNotification('Đang xử lý đơn hàng, vui lòng chờ!', 'error');
+                return;
+            }
+            
             if (!currentBuyingAccount) {
                 showNotification('Không có thông tin tài khoản để mua!', 'error');
                 return;
@@ -1137,6 +1426,16 @@
                 return;
             }
             
+            // Bắt đầu xử lý mua hàng
+            isProcessingPurchase = true;
+            
+            // Vô hiệu hóa nút submit
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang xử lý...';
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            
             // Tạo đơn hàng chờ duyệt
             const order = {
                 id: Date.now().toString(),
@@ -1156,7 +1455,7 @@
             };
             
             // Gửi đơn hàng lên server
-            fetch('/api/orders', {
+            fetchWithAuth('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(order)
@@ -1164,56 +1463,104 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Xóa tài khoản khỏi shop
-                    return fetch('/api/accounts/hide', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ accountId: currentBuyingAccount.accountId })
+                    // Đơn hàng đã thành công, cập nhật balance từ server
+                    return fetchWithAuth('/api/users/me', {
+                        method: 'GET'
                     });
                 } else {
+                    showNotification(data.error || 'Lỗi khi tạo đơn hàng', 'error');
+                    // Reset trạng thái và nút khi lỗi logic
+                    isProcessingPurchase = false;
+                    const submitBtn = document.querySelector('#buyAccountForm button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Xác nhận mua';
+                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                    if (currentBuyingAccount && currentBuyingAccount.button) {
+                        currentBuyingAccount.button.disabled = false;
+                        currentBuyingAccount.button.textContent = 'Mua ngay';
+                        currentBuyingAccount.button.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
                     throw new Error(data.error || 'Lỗi khi tạo đơn hàng');
                 }
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
-                    // Trừ tiền từ balance
-                    const newBalance = currentUser.balance - currentBuyingAccount.price;
-                    return fetch(`/api/users/${encodeURIComponent(currentUser.username)}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            email: currentUser.email, 
-                            balance: newBalance, 
-                            role: currentUser.role 
-                        })
-                    });
-                } else {
-                    throw new Error('Lỗi khi xóa tài khoản khỏi shop');
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Update local user data
-                    currentUser.balance = currentUser.balance - currentBuyingAccount.price;
+                if (data && typeof data.balance !== 'undefined') {
+                    // Update local user data với balance mới từ server
+                    currentUser.balance = data.balance;
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     updateUI();
-                    
                     // Đóng modal và reset form
                     buyAccountModal.classList.add('hidden');
                     buyAccountForm.reset();
                     currentBuyingAccount = null;
-                    
                     showNotification('Đặt hàng thành công! Đơn hàng đã được chuyển vào mục chờ duyệt.', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
                 } else {
-                    showNotification('Lỗi khi cập nhật số dư!', 'error');
+                    showNotification('Lỗi khi cập nhật thông tin người dùng!', 'error');
+                }
+                // Reset trạng thái và nút sau khi hoàn tất (thành công hoặc lỗi logic)
+                isProcessingPurchase = false;
+                const submitBtn = document.querySelector('#buyAccountForm button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Xác nhận mua';
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+                if (currentBuyingAccount && currentBuyingAccount.button) {
+                    currentBuyingAccount.button.disabled = false;
+                    currentBuyingAccount.button.textContent = 'Mua ngay';
+                    currentBuyingAccount.button.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
             })
             .catch(error => {
                 console.error('Buy account error:', error);
-                showNotification('Lỗi kết nối server!', 'error');
+                showNotification('Lỗi kết nối server hoặc thao tác thất bại!', 'error');
+                // Reset trạng thái và nút khi lỗi mạng hoặc lỗi bất ngờ
+                isProcessingPurchase = false;
+                const submitBtn = document.querySelector('#buyAccountForm button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Xác nhận mua';
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+                if (currentBuyingAccount && currentBuyingAccount.button) {
+                    currentBuyingAccount.button.disabled = false;
+                    currentBuyingAccount.button.textContent = 'Mua ngay';
+                    currentBuyingAccount.button.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
             });
+        }
+
+        // Thêm hàm fetchWithAuth nếu chưa có
+        function fetchWithAuth(url, options = {}) {
+            const token = localStorage.getItem('token');
+            options.headers = options.headers || {};
+            if (token) {
+                options.headers['Authorization'] = 'Bearer ' + token;
+            }
+            return fetch(url, options);
+        }
+
+        function renderNoteWithExpand(note) {
+            if (!note || typeof note !== 'string' || note.trim() === '') return '-';
+            const id = 'note-' + Math.random().toString(36).substr(2, 9);
+            return `
+              <span id="${id}-short"><a href="#" style="color:#6366f1;text-decoration:underline;" onclick="showFullNote('${id}', \`${note.replace(/`/g, '\\`')}\`);return false;">Xem thêm</a></span>
+              <span id="${id}-full" style="display:none;">${note} <a href="#" style="color:#6366f1;text-decoration:underline;" onclick="hideFullNote('${id}');return false;">Ẩn bớt</a></span>
+            `;
+        }
+        function showFullNote(id, note) {
+            document.getElementById(id + '-short').style.display = 'none';
+            document.getElementById(id + '-full').style.display = '';
+        }
+        function hideFullNote(id) {
+            document.getElementById(id + '-short').style.display = '';
+            document.getElementById(id + '-full').style.display = 'none';
         }
     </script>
 </body>
